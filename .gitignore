@@ -1,27 +1,151 @@
-# Environment
+# ==============================================
+# EU-UNION-AI-PACT .gitignore
+# ==============================================
+
+# Environment & Secrets
 .env
 *.env
+!.env.example
+.env.local
+.env.*.local
 venv/
+.venv/
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Data and Logs
+# Data & Runtime
 data/
 logs/
 temp/
 backups/
 *.log
+*.log.*
+vault/runtime/
+code-doctor-ledger/
+data-hub-ledger/
+nlp/storage/raw/*
+nlp/storage/normalized/*
+nlp/storage/derived/*
+nlp/storage/ledger/*
+!nlp/storage/*/.gitkeep
 
-# IDE
+# Security & Credentials
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+secrets/
+credentials/
+config/ssl/
+vault/data/
+.vault-token
+
+# Docker & Containers
+.docker/
+docker-compose.override.yml
+.dockerignore
+*.tar
+*.tar.gz
+
+# IDE & Editors
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.sublime-project
+.sublime-workspace
+*.code-workspace
 
-# Docker
-.docker/
-
-# OS
+# OS Generated
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Rust
+target/
+Cargo.lock
+*.rs.bk
+
+# Python Virtual Environments
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+pg_data/
+
+# Temporary Files
+*.tmp
+*.temp
+*~
+.#*
+#*#
+
+# Package Files
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# Monitoring & Metrics
+prometheus_data/
+grafana_data/
+*.metrics
+
+# AI/ML Models (large files)
+*.model
+*.pkl
+*.h5
+*.hdf5
+models/
+checkpoints/
+
+# Backup Files
+*.bak
+*.backup
+*.old
