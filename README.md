@@ -1,386 +1,261 @@
-# 🇪🇺 EU AI Pact - VS Code Pipeline Tools
+# 🇪🇺 EU-UNION-AI-PACT VS Code Pipelines
 
-Ein umfassendes Set von Entwicklungstools für die Einhaltung des EU AI Acts in VS Code Entwicklungsumgebungen.
+> **Complete DevSecOps/AI Pipeline with Local NLP/IP Stack**  
+> 100% Free & Open Source | Production-Ready | Privacy-First
 
-## 🏗️ Architektur
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com)
+[![Vault](https://img.shields.io/badge/HashiCorp-Vault-purple.svg)](https://vaultproject.io)
+[![AI](https://img.shields.io/badge/AI-Local-green.svg)](https://ollama.ai)
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   MCP Server    │    │ Wasmtime Host   │
-│   (Static)      │◄──►│  (Node.js)      │    │   (Rust)        │
-│                 │    │                 │    │                 │
-│ EU AI Act       │    │ AI Compliance   │    │ WASM Validator  │
-│ Compliance UI   │    │ Tools & APIs    │    │ Plugins         │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │ Nginx Proxy     │
-                    │ (Reverse Proxy) │
-                    └─────────────────┘
-```
-
-## 🚀 Komponenten
-
-### 1. **DevContainer Setup**
-- Node.js 20 + Rust + Wasmtime
-- VS Code Extensions für Rust und TypeScript
-- Automatische Tool-Installation
-
-### 2. **MCP Server (Model Context Protocol)**
-- EU AI Act Compliance Tools
-- Risk Assessment APIs
-- RESTful Interface
-- UUID Generation & Validation
-
-### 3. **Wasmtime Host (Rust)**
-- WASM-basierte AI Validierung
-- Isolierte Plugin-Ausführung
-- Fuel-limitierte Ausführung
-- EU AI Act Compliance Scoring
-
-### 4. **WASM Validator Plugin**
-- AI System Compliance Bewertung
-- Risk Category Assessment
-- Transparency Requirements
-- EU AI Act konforme Validierung
-
-### 5. **Web Interface**
-- Interaktive Tools für Entwickler
-
-### 6. **NLP/IP Schutz Stack (NEU)**
-- Lokale Dokumentenverarbeitung mit IP-Schutz
-- Automatische Klassifizierung & Policy-Durchsetzung
-- Vector-Embeddings für semantische Suche
-- Prior-Art Recherche (WIPO/EPO Integration)
-- Hash-basierte Provenance & Integrität
-- OPA Policy Engine für Zugriffskontrolle
-- Real-time AI Compliance Checks
-- Risk Assessment Dashboard
-- Integration Testing
-
-## 🛠️ Schnellstart
-
-### DevContainer (Empfohlen)
-
-1. **Repository öffnen:**
-   ```bash
-   code .
-   ```
-
-2. **In Container öffnen:**
-   - VS Code: `Cmd/Ctrl + Shift + P` → "Reopen in Container"
-   - Warten auf Container-Build und Post-Create Script
-
-3. **Services starten:**
-   ```bash
-   cp .env.example .env
-   docker compose up --build
-   ```
-
-4. **Frontend öffnen:**
-   - Browser: http://localhost
-   - MCP API: http://localhost/mcp/tools
-   - WASM Validator: http://localhost/validate/healthz
-
-### Lokale Entwicklung
+## 🚀 Quick Start
 
 ```bash
-# Dependencies installieren
-cd services/mcp-server && npm install
-rustup target add wasm32-wasi
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/EU-UNION-AI-PACT-VS-Code-Pipelines.git
+cd EU-UNION-AI-PACT-VS-Code-Pipelines
 
-# WASM Plugin bauen
-./scripts/build-wasm.sh
+# Start all services
+./scripts/start-all.sh
 
-# Services einzeln starten
-npm run dev --prefix services/mcp-server     # Port 7000
-cargo run --manifest-path services/wasmtime-host/Cargo.toml  # Port 8080
+# Check health
+./scripts/health-check.sh
+
+# Access services
+open http://localhost:8080  # Gateway
+open http://localhost:8200  # Vault (Token: root-dev-token)
 ```
 
-## 🧪 Testing
+## ✨ Features
+
+### 🛡️ DevSecOps Pipeline
+
+- **HashiCorp Vault** - Secret management & encryption
+- **OPA Policies** - Policy-based access control  
+- **Audit Logging** - Complete provenance tracking
+- **Auto-Healing** - Code Doctor with AI repair
+
+### 🧠 AI/ML Stack
+
+- **Local LLMs** - Ollama integration (LLaMA 3.2)
+- **Vector Embeddings** - Sentence Transformers
+- **PostgreSQL** - pgvector for semantic search
+- **RAG Pipeline** - Document processing & retrieval
+
+### 🌐 Invisible Hosting
+
+- **Cloudflare Tunnel** - Public HTTPS without domain
+- **nip.io** - IP-based domains  
+- **Dynamic Registry** - TrailStar-like functionality
+- **SSL/TLS** - Automatic certificate management
+
+### 🔒 Security & Compliance
+
+- **Zero Trust** - All services secured by default
+- **GDPR Ready** - Privacy-first architecture
+- **IP Protection** - Intellectual property ledger
+- **Secure Sandbox** - Code execution isolation
+
+## 🏗️ Architecture
+
+```mermaid
+graph TB
+    A[Gateway :8080] --> B[Vault :8200]
+    A --> C[Code Doctor :8500]  
+    A --> D[Data Hub :8400]
+    A --> E[Exec Sandbox :8600]
+    
+    B --> F[PostgreSQL :5432]
+    B --> G[Redis :6379]
+    C --> H[Ollama AI :11434]
+    D --> I[NLP Services]
+    
+    J[OPA] --> K[Policy Engine]
+    L[Monitoring] --> M[Health Checks]
+```
+
+## 📦 Services
+
+| Service | Port | Description | Status |
+|---------|------|-------------|--------|
+| **Gateway** | 8080 | Web Interface & API Gateway | ✅ |
+| **Vault** | 8200 | Secret Management | ✅ |
+| **Code Doctor** | 8500 | Code Healing & Normalization | ✅ |
+| **Data Hub** | 8400 | RAG + Open Data + API Search | ✅ |
+| **Exec Sandbox** | 8600 | Secure Code Execution | ✅ |
+| **PostgreSQL** | 5432 | Database with pgvector | ✅ |
+| **Redis** | 6379 | Caching Layer | ✅ |
+| **Ollama** | 11434 | Local AI Models | ✅ |
+
+## 🛠️ Installation
+
+### Prerequisites
+
+- Docker & Docker Compose
+- Python 3.11+
+- Git
+
+### Setup Options
+
+#### Option 1: Simple Setup (Recommended)
 
 ```bash
-# Service Tests
-./scripts/test-services.sh
-
-# Node.js Client
-cd clients/node && npm install && node index.js
-
-# Python Client  
-cd clients/python && pip install -r requirements.txt && python client.py
+./scripts/simple-setup.sh
 ```
 
-## 🔧 API Referenz
-
-### MCP Server Endpoints
-
-```http
-GET  /mcp/healthz                 # Health Check
-GET  /mcp/tools                   # Verfügbare Tools
-POST /mcp/invoke                  # Tool Ausführung
-GET  /mcp/context                 # Projekt Kontext
-```
-
-**Tool Invocation Beispiel:**
-```json
-POST /mcp/invoke
-{
-  "tool": "validate-ai-compliance",
-  "args": {
-    "system": "VS Code AI Assistant",
-    "riskLevel": "limited"
-  }
-}
-```
-
-### Wasmtime Validator
-
-```http
-GET  /validate/healthz            # Health Check
-POST /validate/validate           # WASM Validierung
-```
-
-**Validation Beispiel:**
-```json
-POST /validate/validate
-{
-  "validator": "ai-validator",
-  "payload": {
-    "aiSystem": {
-      "name": "Code Assistant",
-      "type": "development-tool",
-      "riskLevel": "limited"
-    }
-  }
-}
-```
-
-## 🏭 Kubernetes Deployment
-
-### Voraussetzungen
-- Kubernetes Cluster mit Ingress Controller
-- Optional: cert-manager für TLS
-
-### Deployment
-```bash
-# ConfigMap anwenden
-kubectl apply -f k8s/configmap.yaml
-
-# Services deployen
-kubectl apply -f k8s/deployment-mcp.yaml
-kubectl apply -f k8s/deployment-wasmhost.yaml
-kubectl apply -f k8s/deployment-web.yaml
-
-# Ingress konfigurieren
-kubectl apply -f k8s/ingress.yaml
-
-# Status prüfen
-kubectl get pods,services,ingress
-```
-
-### DNS Konfiguration
-```bash
-# /etc/hosts (für lokales Testing)
-127.0.0.1 eu-ai-pact.example.com
-```
-
-## 🔒 EU AI Act Compliance Features
-
-### 1. **Risk Assessment**
-- **Unacceptable Risk**: Verbotene AI-Systeme
-- **High Risk**: Strenge Auflagen (z.B. kritische Infrastruktur)
-- **Limited Risk**: Transparenzpflichten
-- **Minimal Risk**: Freiwillige Maßnahmen
-
-### 2. **Compliance Validation**
-- Automatisierte Risiko-Kategorisierung
-- Dokumentationsanforderungen
-- Human Oversight Bewertung
-- Transparenz-Scores
-
-### 3. **WASM-basierte Isolation**
-- Sichere Plugin-Ausführung
-- Resource-limitierte Validierung
-- Fuel-basierte CPU-Limits
-- Deterministische Bewertung
-
-## 🧩 Erweiterungen
-
-### Neue WASM Validator hinzufügen
-
-1. **Neuen Validator erstellen:**
-   ```bash
-   cargo new --lib wasm-plugins/my-validator
-   cd wasm-plugins/my-validator
-   ```
-
-2. **Cargo.toml konfigurieren:**
-   ```toml
-   [lib]
-   crate-type = ["cdylib"]
-   ```
-
-3. **Export Funktionen implementieren:**
-   ```rust
-   #[no_mangle]
-   pub extern "C" fn my_validation(input: i32) -> i32 {
-       // Validation logic
-       input * 2
-   }
-   ```
-
-4. **Build und Deploy:**
-   ```bash
-   cargo build --target wasm32-wasi --release
-   cp target/wasm32-wasi/release/my_validator.wasm validators/
-   ```
-
-### MCP Tools erweitern
-
-```javascript
-// In services/mcp-server/src/index.js
-if (tool === "my-new-tool") {
-  return res.json({ 
-    tool, 
-    output: "Tool result", 
-    status: "ok" 
-  });
-}
-```
-
-## 🛡️ Sicherheit
-
-### Container Security
-- Non-root User (UID 1000)
-- Dropped Capabilities
-- Resource Limits
-- Security Contexts
-
-### WASM Isolation
-- Fuel-limitierte Ausführung
-- Memory Isolation
-- Deterministic Execution
-- No System Access
-
-### Network Security
-- Service Mesh kompatibel
-- NetworkPolicies verfügbar
-- TLS-ready (cert-manager)
-- Rate Limiting möglich
-
-## 📊 Monitoring & Observability
-
-### Health Checks
-- Kubernetes Readiness/Liveness Probes
-- Service Health Endpoints
-- Docker Compose Health Checks
-
-### Metrics (Erweiterbar)
-- Prometheus Exporter Integration
-- WASM Execution Metrics
-- Compliance Score Tracking
-- API Response Times
-
-## 🚀 CI/CD Integration
-
-### GitHub Actions (Vorbereitet)
-```yaml
-# Beispiel Workflow
-- name: Build WASM
-  run: ./scripts/build-wasm.sh
-
-- name: Test Services  
-  run: ./scripts/test-services.sh
-
-- name: Build & Push Images
-  # Docker build und registry push
-```
-
-### Security Scanning
-- SBOM Generation (Syft)
-- Vulnerability Scanning (Trivy)
-- Code Quality (SonarQube)
-- Supply Chain Security (Cosign)
-
-## 🔗 Client Libraries
-
-### Node.js
-```javascript
-import { EUAIPactClient } from './clients/node/index.js';
-const client = new EUAIPactClient();
-const result = await client.validateAICompliance("MyAI");
-```
-
-### Python
-```python
-from clients.python.client import EUAIPactClient
-client = EUAIPactClient()
-result = client.validate_ai_compliance("MyAI")
-```
-
-## � NLP/IP Schutz Stack
-
-Der lokale NLP/IP Schutz Stack bietet sichere Dokumentenverarbeitung mit Intellectual Property Schutz:
+#### Option 2: Full Setup with AI
 
 ```bash
-# NLP Stack starten
-cp .env.nlp.example .env.nlp
-# Konfiguration anpassen in .env.nlp
-docker compose -f docker-compose.nlp.yml --env-file .env.nlp up --build
+./scripts/arch-setup.sh  # For Arch Linux
+./scripts/free-master-setup.sh  # Universal
 ```
 
-### Features
-- **Lokale Verarbeitung**: Kein Cloud-Upload sensibler Dokumente
-- **Automatische Klassifizierung**: Vertraulichkeitsstufen per Regex/NLP  
-- **IP-Schutz**: Hash-basierte Provenance & Integrität
-- **Prior-Art Recherche**: WIPO/EPO Integration (Platzhalter)
-- **Vector Search**: pgvector für semantische Dokumentensuche
-- **Policy Engine**: OPA für Zugriffskontrolle
+#### Option 3: Invisible Hosting
 
-### Endpoints
-```http
-POST /ingest                      # Dokument Upload & Processing
-POST /verify                      # Hash Verifikation
-GET  /wipo/prior_art             # WIPO Prior-Art Suche
-GET  /epo/ops/query              # EPO Patent Suche
-```
-
-### Verwendung
 ```bash
-# Dokument hochladen
-curl -F file=@document.txt http://localhost:8100/ingest
+# Cloudflare Tunnel
+./scripts/setup-cloudflare-tunnel.sh
 
-# OPA Policy testen
-curl -X POST http://localhost:8181/v1/data/nlp/allow \
-  -d '{"input":{"action":"ingest","classification":"internal","user_roles":["data-steward"]}}'
-
-# Ledger Integrität prüfen
-./nlp/scripts/provenance_batch_sign.sh
+# nip.io (IP-based domains)
+./scripts/setup-nip-io.sh
 ```
 
-Siehe `nlp/README.md` für detaillierte Anleitung.
+## 🔧 Management
 
-## �📚 Weitere Ressourcen
+### Start/Stop Services
 
-- [EU AI Act Official Text](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
-- [Wasmtime Documentation](https://docs.wasmtime.dev/)
-- [Model Context Protocol](https://github.com/modelcontextprotocol)
-- [VS Code DevContainers](https://code.visualstudio.com/docs/devcontainers/containers)
+```bash
+# Start all
+./scripts/start-all.sh
+
+# Stop all  
+./scripts/stop-all.sh
+
+# Health check
+./scripts/health-check.sh
+```
+
+### Docker Management
+
+```bash
+# Full stack
+docker-compose -f docker-compose.vault.yml up -d
+
+# Simple stack
+docker-compose -f docker-compose.simple.yml up -d
+
+# View logs
+docker-compose logs -f
+```
+
+### AI Models
+
+```bash
+# Pull models
+ollama pull llama3.2:1b
+ollama pull nomic-embed-text
+
+# Chat with AI
+ollama run llama3.2:1b
+```
+
+## 📁 Project Structure
+
+```text
+EU-UNION-AI-PACT-VS-Code-Pipelines/
+├── 🔐 vault/                    # HashiCorp Vault config
+├── 🧠 nlp/                      # NLP & AI services  
+├── 🛠️ services/                 # Microservices
+│   ├── code_doctor/             # Code healing & normalization
+│   ├── data_hub/                # RAG + Open Data + APIs
+│   └── exec_sandbox/            # Secure code execution
+├── 📜 scripts/                  # Management scripts
+├── 🐳 docker-compose.*.yml      # Container orchestration
+├── 🐍 venv/                     # Python virtual environment
+└── 📋 docs/                     # Documentation
+```
+
+## 🌟 Use Cases
+
+### For Developers
+
+- **Code Quality** - Automatic healing & normalization
+- **Local AI** - No external API dependencies  
+- **Security** - Vault-integrated development
+- **Testing** - Secure sandbox execution
+
+### For Organizations
+
+- **Compliance** - GDPR & privacy-first
+- **Cost Savings** - 100% free, no licensing
+- **Security** - Zero-trust architecture
+- **Scalability** - Container-native design
+
+### For Research
+
+- **Data Processing** - RAG pipeline for documents
+- **Open Data** - EU & government data integration
+- **ML Experiments** - Local model deployment
+- **Provenance** - Complete audit trails
+
+## 💰 Cost Breakdown
+
+| Component | Cost | Alternative |
+|-----------|------|-------------|
+| **Hosting** | $0 | vs. $100+/month |
+| **AI APIs** | $0 | vs. $500+/month |
+| **Security** | $0 | vs. $200+/month |
+| **Monitoring** | $0 | vs. $50+/month |
+| **Total** | **$0** | **vs. $850+/month** |
+
+## 🔐 Security
+
+- **Encryption at Rest** - Vault transit engine
+- **Encryption in Transit** - TLS everywhere
+- **Zero Trust** - No implicit permissions
+- **Audit Logging** - Complete activity tracking
+- **Policy Engine** - OPA-based access control
+- **Secure Defaults** - Production-ready configuration
+
+## 📊 Monitoring
+
+- **Health Checks** - Automated service monitoring
+- **Metrics** - Prometheus integration ready
+- **Logging** - Centralized log collection
+- **Alerting** - Ready for Grafana integration
 
 ## 🤝 Contributing
 
-1. Fork das Repository
-2. Feature Branch erstellen (`git checkout -b feature/amazing-feature`)
-3. Changes committen (`git commit -m 'Add amazing feature'`)
-4. Branch pushen (`git push origin feature/amazing-feature`)
-5. Pull Request öffnen
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-## 📄 Lizenz
+## 📄 License
 
-Apache 2.0 License - siehe [LICENSE](LICENSE) für Details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **HashiCorp** - Vault security platform
+- **Open Policy Agent** - Policy engine
+- **PostgreSQL** - Database with pgvector
+- **Ollama** - Local AI model deployment
+- **EU Open Data** - Data sources & APIs
 
 ---
 
-**🇪🇺 EU AI Pact Compliance Tools** - Entwickelt für sichere und konforme AI-Entwicklung in Europa.
+## 🚀 Get Started Now
+
+```bash
+git clone https://github.com/YOUR_USERNAME/EU-UNION-AI-PACT-VS-Code-Pipelines.git
+cd EU-UNION-AI-PACT-VS-Code-Pipelines
+./scripts/simple-setup.sh
+```
+
+**Ready in 5 minutes!** 🎉
+
+---
+
+*Made with ❤️ for the European Union AI Pact*
