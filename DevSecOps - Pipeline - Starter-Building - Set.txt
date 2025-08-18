@@ -1,0 +1,4 @@
+# Klonen und starten in 5 Minuten:
+git clone https://github.com/EU-UNION-AI-PACT/EU-UNION-AI-PACT-VS-Code-Pipelines.git
+cd EU-UNION-AI-PACT-VS-Code-Pipelines
+./scripts/simple-setup.sh
