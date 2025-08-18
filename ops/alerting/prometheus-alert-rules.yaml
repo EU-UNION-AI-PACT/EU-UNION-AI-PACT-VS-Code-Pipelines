@@ -1,0 +1,36 @@
+groups:
+  - name: rag_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: service:error_rate > 0.05
+        for: 10m
+        labels:
+          severity: page
+          team: nlp
+        annotations:
+          summary: "Fehlerquote >5% ({{ $value }})"
+          runbook: "https://internal.runbooks/HighErrorRate"
+      - alert: SlowVectorQueries
+        expr: rag:vector_query_latency_ms:p95 > 600
+        for: 15m
+        labels:
+          severity: warn
+        annotations:
+          summary: "Vector Retrieval p95 > 600ms"
+          runbook: "https://internal.runbooks/RetrievalLatency"
+      - alert: LedgerAppendIssues
+        expr: ledger:append_fail_ratio > 0.01
+        for: 10m
+        labels:
+          severity: crit
+        annotations:
+          summary: "Ledger Append Fehlerquote >1%"
+          runbook: "https://internal.runbooks/LedgerErrors"
+      - alert: ErrorBudgetBurnFast
+        expr: (service:error_rate > 0.02) and (predict_linear(service:error_rate[30m], 3600) > 0.02)
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Prognose: Error Budget schnelles Verbrauchen"
+          runbook: "https://internal.runbooks/ErrorBudget"

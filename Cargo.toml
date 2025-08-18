@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  "services/wasmtime-host",
+  "wasm-plugins/ai-validator"
+]
+resolver = "2"

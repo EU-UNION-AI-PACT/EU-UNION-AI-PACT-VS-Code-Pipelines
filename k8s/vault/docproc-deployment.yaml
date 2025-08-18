@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docproc
+  labels:
+    app: docproc
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: docproc
+  template:
+    metadata:
+      labels:
+        app: docproc
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "docproc-role"
+        vault.hashicorp.com/agent-inject-secret-app-config: "kv/data/app"
+        vault.hashicorp.com/agent-inject-template-app-config: |
+          {{- with secret "kv/data/app" -}}
+          API_TOKEN={{ .Data.data.api_token }}
+          CLASS_DEFAULT={{ .Data.data.classification_default }}
+          {{- end }}
+    spec:
+      serviceAccountName: docproc-sa
+      containers:
+        - name: docproc
+          image: ghcr.io/OWNER/docproc:latest
+          env:
+            - name: APP_CONFIG_FILE
+              value: /vault/secrets/app-config
+            - name: VAULT_TRANSIT_KEY
+              value: ledger-sign
+            - name: VAULT_TRANSIT_ENCRYPT_KEY
+              value: doc-bytes
+          ports:
+            - containerPort: 8100
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: docproc-sa

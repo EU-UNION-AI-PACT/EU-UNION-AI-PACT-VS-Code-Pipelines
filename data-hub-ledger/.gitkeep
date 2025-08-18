@@ -1,0 +1,19 @@
+# Data Hub Ledger Directory
+
+This directory stores the ledger for Data Hub operations, including:
+
+- External search queries and results
+- API discovery operations  
+- Sandbox execution logs
+- Performance metrics
+
+## Contents
+
+- `search_queries.jsonl` - Query history with anonymized hashes
+- `api_discoveries.jsonl` - OpenAPI endpoint discovery logs
+- `sandbox_executions.jsonl` - Code execution audit trail
+- `performance_metrics.jsonl` - Response times and cache hit rates
+
+## Privacy
+
+All user queries are stored as SHA-256 hashes to protect privacy while enabling analytics.

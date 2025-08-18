@@ -1,0 +1,17 @@
+[Unit]
+Description=Auto Update Dev/VSCode Environment
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/shinehealthcare/Schreibtisch/EU-UNION-AI-PACT-VS-Code Pipelines
+Environment=REPORT_DIR=/home/shinehealthcare/Schreibtisch/EU-UNION-AI-PACT-VS-Code Pipelines/reports/updates
+ExecStart=/usr/bin/env bash scripts/update/update-all.sh safe
+User=shinehealthcare
+Group=shinehealthcare
+Nice=10
+IOSchedulingClass=best-effort
+
+[Install]
+WantedBy=multi-user.target

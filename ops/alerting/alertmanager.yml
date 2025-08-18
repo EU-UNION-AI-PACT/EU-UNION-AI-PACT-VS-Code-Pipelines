@@ -1,0 +1,36 @@
+route:
+  receiver: 'default'
+  group_by: ['alertname','service']
+  group_wait: 10s
+  group_interval: 2m
+  repeat_interval: 3h
+  routes:
+    - matchers:
+        - severity="page"
+      receiver: 'oncall'
+    - matchers:
+        - severity="crit"
+      receiver: 'oncall'
+    - matchers:
+        - severity="warn"
+      receiver: 'slack'
+
+receivers:
+  - name: 'default'
+    slack_configs:
+      - channel: '#nlp-observe'
+        send_resolved: true
+        text: "{{ range .Alerts }}[{{ .Status }}] {{ .Annotations.summary }}\n{{ end }}"
+  - name: 'oncall'
+    pagerduty_configs:
+      - routing_key: ${PAGERDUTY_KEY}
+  - name: 'slack'
+    slack_configs:
+      - channel: '#nlp-warnings'
+        send_resolved: true
+        text: "{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}"
+
+inhibit_rules:
+  - source_matchers: [severity="page"]
+    target_matchers: [severity="warn"]
+    equal: ['alertname']

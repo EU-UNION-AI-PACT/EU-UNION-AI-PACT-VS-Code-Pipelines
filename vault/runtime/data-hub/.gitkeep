@@ -1,0 +1,10 @@
+# Vault Runtime for Data Hub
+
+This directory contains runtime artifacts for Data Hub Vault integration:
+
+- `role_id` - AppRole Role ID for authentication
+- `secret_id` - AppRole Secret ID (generated at runtime)
+- `token` - Current Vault token (if using token auth)
+- `config.json` - Runtime configuration cache
+
+These files are generated automatically during service startup.

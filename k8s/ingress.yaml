@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eu-ai-pact-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    # Uncomment for TLS with cert-manager:
+    # cert-manager.io/cluster-issuer: letsencrypt-http
+spec:
+  ingressClassName: nginx
+  # Uncomment for TLS:
+  # tls:
+  #   - hosts:
+  #       - eu-ai-pact.example.com
+  #     secretName: eu-ai-pact-tls
+  rules:
+    - host: eu-ai-pact.example.com
+      http:
+        paths:
+          # MCP endpoints
+          - path: /(mcp/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: mcp-server
+                port:
+                  number: 7000
+          # WASM validation endpoints
+          - path: /(validate/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: wasmtime-host
+                port:
+                  number: 8080
+          # Frontend and static content
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: web-proxy
+                port:
+                  number: 80

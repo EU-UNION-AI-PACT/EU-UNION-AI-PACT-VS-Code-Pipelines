@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+orjson
+tenacity
+cachetools
+sentence-transformers
+PyYAML
+structlog

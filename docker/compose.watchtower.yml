@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  watchtower:
+    image: containrrr/watchtower:1.7.1
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=3600      # jede Stunde
+      - WATCHTOWER_INCLUDE_STOPPED=true
+      - WATCHTOWER_REVIVE_STOPPED=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    networks:
+      - nlp_net
+    labels:
+      - "watchtower.enable=false"  # Don't update watchtower itself
+
+networks:
+  nlp_net:
+    external: true

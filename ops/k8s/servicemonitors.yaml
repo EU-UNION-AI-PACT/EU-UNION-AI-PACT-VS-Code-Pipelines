@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rag-services
+spec:
+  selector:
+    matchLabels:
+      app-group: rag
+  endpoints:
+    - port: metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: rag-pods
+spec:
+  selector:
+    matchLabels:
+      app-group: rag
+  podMetricsEndpoints:
+    - port: metrics
+      interval: 30s

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wasmtime-host
+  labels:
+    app: wasmtime-host
+    component: eu-ai-pact
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wasmtime-host
+  template:
+    metadata:
+      labels:
+        app: wasmtime-host
+        component: eu-ai-pact
+    spec:
+      containers:
+        - name: wasmhost
+          image: ghcr.io/eu-union-ai-pact/wasmhost:latest
+          envFrom:
+            - configMapRef:
+                name: eu-ai-pact-config
+          env:
+            - name: WASM_HOST_PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 40m
+              memory: 96Mi
+            limits:
+              cpu: 200m
+              memory: 192Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wasmtime-host
+  labels:
+    app: wasmtime-host
+    component: eu-ai-pact
+spec:
+  selector:
+    app: wasmtime-host
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http

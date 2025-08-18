@@ -1,0 +1,11 @@
+resources:
+  - servicemonitors.yaml
+  - ../alerting/prometheus-alert-rules.yaml
+  - ../prometheus/prometheus-recording-rules.yaml
+configMapGenerator:
+  - name: prometheus-rules
+    files:
+      - ../alerting/prometheus-alert-rules.yaml
+      - ../prometheus/prometheus-recording-rules.yaml
+generatorOptions:
+  disableNameSuffixHash: true

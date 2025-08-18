@@ -1,0 +1,19 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: pod-kill-embedding
+  namespace: chaos
+spec:
+  annotationCheck: "false"
+  engineState: "active"
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            - name: TARGET_PODS
+              value: "app=embedding"
+            - name: CHAOS_INTERVAL
+              value: "30"
+            - name: TOTAL_CHAOS_DURATION
+              value: "300"

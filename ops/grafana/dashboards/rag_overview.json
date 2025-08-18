@@ -1,0 +1,40 @@
+{
+  "title": "RAG Overview",
+  "uid": "rag-main",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Request Rate",
+      "targets": [
+        {"expr": "sum(rate(http_requests_total[5m])) by (service)"}
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Error Rate %",
+      "targets": [
+        {"expr": "service:error_rate * 100"}
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Vector Query p95 (ms)",
+      "targets": [
+        {"expr": "rag:vector_query_latency_ms:p95"}
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Ledger Append Fail Ratio",
+      "targets": [
+        {"expr": "ledger:append_fail_ratio"}
+      ]
+    }
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  }
+}

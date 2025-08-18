@@ -1,0 +1,43 @@
+FROM rust:1.79 as build
+WORKDIR /app
+
+# Copy Cargo files
+COPY Cargo.toml Cargo.lock ./
+COPY services/wasmtime-host/Cargo.toml services/wasmtime-host/Cargo.toml
+COPY wasm-plugins/ai-validator/Cargo.toml wasm-plugins/ai-validator/Cargo.toml
+
+# Create dummy main for dependency caching
+RUN mkdir -p services/wasmtime-host/src wasm-plugins/ai-validator/src && \
+    echo "fn main(){}" > services/wasmtime-host/src/main.rs && \
+    echo "pub fn dummy(){}" > wasm-plugins/ai-validator/src/lib.rs && \
+    cargo fetch
+
+# Copy source code
+COPY . .
+
+# Add wasm32-wasi target
+RUN rustup target add wasm32-wasi
+
+# Build WASM validator plugin
+RUN cargo build --release --target wasm32-wasi --manifest-path wasm-plugins/ai-validator/Cargo.toml
+
+# Build wasmtime host
+RUN cargo build --release --manifest-path services/wasmtime-host/Cargo.toml
+
+# Runtime stage
+FROM debian:stable-slim
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates wget && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /runtime
+
+# Create validator directory and copy WASM modules
+RUN mkdir -p validators
+COPY --from=build /app/target/wasm32-wasi/release/ai_validator.wasm validators/ai-validator.wasm
+
+# Copy wasmtime host binary
+COPY --from=build /app/target/release/wasmtime-host /usr/local/bin/wasmhost
+
+EXPOSE 8080
+ENTRYPOINT ["wasmhost"]

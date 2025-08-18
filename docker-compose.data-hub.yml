@@ -1,0 +1,58 @@
+version: "3.9"
+services:
+  data-hub:
+    build: ./services/data_hub
+    environment:
+      - OPEN_DATA_CKAN_BASES=https://data.europa.eu/api/hub/search,https://catalog.data.gov/api/3
+      - SPARQL_ENDPOINT=https://query.wikidata.org/sparql
+      - OPENAPI_FETCH_TIMEOUT=20
+      - RAG_INGEST_URL=http://rag-api:8000/rag/query
+      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L12-v2
+      - CACHE_TTL=3600
+      - ALLOWED_OPENAPI_HOSTS=api.github.com,api.open-meteo.com,httpbin.org
+      - SANDBOX_URL=http://exec-sandbox:8600/run
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_ROLE=data-hub-role
+      - DATA_HUB_LEDGER=/data/ledger
+    volumes:
+      - ./data-hub-ledger:/data/ledger
+      - ./vault/runtime/data-hub:/vault/runtime:ro
+    depends_on:
+      - vault
+      - exec-sandbox
+    ports:
+      - "8400:8400"
+    networks:
+      - nlp_net
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8400/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  exec-sandbox:
+    build: ./services/exec_sandbox
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 256m
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    environment:
+      - EXEC_TIMEOUT=4
+      - MAX_CODE_BYTES=4000
+      - MAX_OUTPUT_BYTES=8000
+    ports:
+      - "8600:8600"
+    networks:
+      - nlp_net
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8600/healthz"]
+      interval: 60s
+      timeout: 5s
+      retries: 2
+
+networks:
+  nlp_net:
+    external: true

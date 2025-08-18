@@ -1,0 +1,112 @@
+version: "3.9"
+services:
+  pg:
+    image: pgvector/pgvector:pg16
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    command: ["postgres","-c","shared_buffers=2GB","-c","work_mem=64MB"]
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./nlp/migrations:/docker-entrypoint-initdb.d:ro
+    networks:
+      - nlp_net
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  embedding:
+    build: ./nlp/services/embedding
+    environment:
+      - EMBED_MODEL=${EMBED_MODEL}
+    networks:
+      - nlp_net
+    depends_on: [ pg ]
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8000/healthz"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  docproc:
+    build: ./nlp/services/docproc
+    environment:
+      - DB_HOST=pg
+      - DB_PORT=${POSTGRES_PORT}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASS=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_DB}
+      - EMBEDDING_URL=http://embedding:8000/embed
+      - LEDGER_DIR=/data/ledger
+      - SIGNING_METHOD=${SIGNING_METHOD}
+      - HASH_ALGO=${HASH_ALGO}
+      - CLASSIFICATION_FILE=/config/classification.yaml
+      - POLICY_ENDPOINT=http://opa:8181/v1/data/nlp/allow
+    volumes:
+      - ./nlp/storage/raw:/data/raw:ro
+      - ./nlp/storage/normalized:/data/normalized
+      - ./nlp/storage/derived:/data/derived
+      - ./nlp/storage/ledger:/data/ledger
+      - ./nlp/security/classification.yaml:/config/classification.yaml:ro
+    networks:
+      - nlp_net
+    depends_on: [ embedding, opa ]
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8100/healthz"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  ip-guard:
+    build: ./nlp/services/ip-guard
+    environment:
+      - LEDGER_DIR=/data/ledger
+      - HASH_ALGO=${HASH_ALGO}
+      - WIPO_USER_AGENT=${WIPO_USER_AGENT}
+      - EPO_API_KEY=${EPO_API_KEY}
+      - EPO_API_SECRET=${EPO_API_SECRET}
+    networks:
+      - nlp_net
+    volumes:
+      - ./nlp/storage/ledger:/data/ledger
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8200/healthz"]
+      interval: 30s
+
+  opa:
+    image: openpolicyagent/opa:0.64.0-rootless
+    command: ["run","--server","--addr=0.0.0.0:8181","/policies"]
+    volumes:
+      - ./nlp/security/opa:/policies:ro
+    networks:
+      - nlp_net
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8181/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  gateway:
+    build: ./nlp/services/gateway
+    environment:
+      - INTERNAL_API_TOKEN=${INTERNAL_API_TOKEN}
+      - DOCPROC_URL=http://docproc:8100
+      - IPGUARD_URL=http://ip-guard:8200
+    networks:
+      - nlp_net
+    ports:
+      - "8080:8080"
+    depends_on: [ docproc, ip-guard ]
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8080/healthz"]
+      interval: 15s
+
+volumes:
+  pg_data:
+
+networks:
+  nlp_net:
+    driver: bridge

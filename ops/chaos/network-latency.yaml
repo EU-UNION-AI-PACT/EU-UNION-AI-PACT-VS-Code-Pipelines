@@ -1,0 +1,16 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: gateway-latency
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: gateway
+  delay:
+    latency: "200ms"
+    correlation: "30"
+  duration: "5m"
+  scheduler:
+    cron: "@every 24h"

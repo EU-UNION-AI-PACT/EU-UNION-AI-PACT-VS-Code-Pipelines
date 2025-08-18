@@ -1,0 +1,198 @@
+version: "3.9"
+services:
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=root-dev-token
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    ports:
+      - "8200:8200"
+    command: "server -dev"
+    volumes:
+      - ./vault/policies:/vault/policies:ro
+      - ./vault/init:/vault/init
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8200/v1/sys/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ nlp_net ]
+
+  # Optional: Vault UI Proxy (nicht nötig wenn direkt 8200 genutzt wird)
+  # nginx-vault:
+  #   image: nginx:1.27-alpine
+  #   depends_on: [ vault ]
+  #   ports:
+  #     - "18200:80"
+
+  pg:
+    image: pgvector/pgvector:pg16
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-ChangeMeStrong!}
+      - POSTGRES_USER=${POSTGRES_USER:-nlp}
+      - POSTGRES_DB=${POSTGRES_DB:-nlpdb}
+    networks: [ nlp_net ]
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER:-nlp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./nlp/migrations:/docker-entrypoint-initdb.d:ro
+
+  embedding:
+    build: ./nlp/services/embedding
+    environment:
+      - EMBED_MODEL=${EMBED_MODEL:-sentence-transformers/all-MiniLM-L12-v2}
+    networks: [ nlp_net ]
+    depends_on: [ pg ]
+
+  docproc:
+    build: ./nlp/services/docproc
+    environment:
+      - DB_HOST=pg
+      - DB_PORT=5432
+      - DB_USER=vault-dynamic                # Placeholder, wird zur Laufzeit gesetzt
+      - DB_PASS=__DYNAMIC__                  # Placeholder
+      - DB_NAME=nlpdb
+      - EMBEDDING_URL=http://embedding:8000/embed
+      - LEDGER_DIR=/data/ledger
+      - HASH_ALGO=sha256
+      - CLASSIFICATION_FILE=/config/classification.yaml
+      - POLICY_ENDPOINT=http://opa:8181/v1/data/nlp/allow
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_ROLE=docproc-role
+      - VAULT_APPROLE_PATH=approle
+      - VAULT_TRANSIT_KEY=ledger-sign
+      - VAULT_TRANSIT_ENCRYPT_KEY=doc-bytes
+      - VAULT_KV_PATH=kv/data/app
+    volumes:
+      - ./nlp/storage/raw:/data/raw:ro
+      - ./nlp/storage/normalized:/data/normalized
+      - ./nlp/storage/derived:/data/derived
+      - ./nlp/storage/ledger:/data/ledger
+      - ./nlp/security/classification.yaml:/config/classification.yaml:ro
+      - ./vault/runtime/docproc:/vault/runtime:ro
+    networks: [ nlp_net ]
+    depends_on: [ embedding, opa, vault ]
+
+  ip-guard:
+    build: ./nlp/services/ip-guard
+    environment:
+      - LEDGER_DIR=/data/ledger
+      - HASH_ALGO=sha256
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_ROLE=ipguard-role
+      - VAULT_APPROLE_PATH=approle
+      - VAULT_TRANSIT_KEY=ledger-sign
+    volumes:
+      - ./nlp/storage/ledger:/data/ledger
+      - ./vault/runtime/ipguard:/vault/runtime:ro
+    networks: [ nlp_net ]
+    depends_on: [ vault ]
+
+  opa:
+    image: openpolicyagent/opa:0.64.0-rootless
+    command: ["run","--server","--addr=0.0.0.0:8181","/policies"]
+    volumes:
+      - ./nlp/security/opa:/policies:ro
+    networks: [ nlp_net ]
+
+  gateway:
+    build: ./nlp/services/gateway
+    environment:
+      - DOCPROC_URL=http://docproc:8100
+      - IPGUARD_URL=http://ip-guard:8200
+      - INTERNAL_API_TOKEN=ReplaceWithGeneratedToken
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_ROLE=gateway-role
+      - VAULT_APPROLE_PATH=approle
+    volumes:
+      - ./vault/runtime/gateway:/vault/runtime:ro
+    networks: [ nlp_net ]
+    depends_on: [ docproc, ip-guard, vault ]
+    ports:
+      - "8080:8080"
+
+  code-doctor:
+    build: ./services/code_doctor
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_API_BASE=${OPENAI_API_BASE:-https://api.openai.com/v1}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - CODE_DOCTOR_LEDGER=/data/ledger
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_ROLE=code-doctor-role
+      - VAULT_APPROLE_PATH=approle
+    volumes:
+      - ./code-doctor-ledger:/data/ledger
+      - ./vault/runtime/code-doctor:/vault/runtime:ro
+    networks: [ nlp_net ]
+    depends_on: [ vault ]
+    ports:
+      - "8500:8500"
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8500/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  data-hub:
+    build: ./services/data_hub
+    environment:
+      - OPEN_DATA_CKAN_BASES=https://data.europa.eu/api/hub/search,https://catalog.data.gov/api/3
+      - SPARQL_ENDPOINT=https://query.wikidata.org/sparql
+      - OPENAPI_FETCH_TIMEOUT=20
+      - RAG_INGEST_URL=http://rag-api:8000/rag/query
+      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L12-v2
+      - CACHE_TTL=3600
+      - ALLOWED_OPENAPI_HOSTS=api.github.com,api.open-meteo.com,httpbin.org
+      - SANDBOX_URL=http://exec-sandbox:8600/run
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_ROLE=data-hub-role
+      - DATA_HUB_LEDGER=/data/ledger
+    volumes:
+      - ./data-hub-ledger:/data/ledger
+      - ./vault/runtime/data-hub:/vault/runtime:ro
+    depends_on: [ vault, exec-sandbox ]
+    ports:
+      - "8400:8400"
+    networks: [ nlp_net ]
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8400/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  exec-sandbox:
+    build: ./services/exec_sandbox
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 256m
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    environment:
+      - EXEC_TIMEOUT=4
+      - MAX_CODE_BYTES=4000
+      - MAX_OUTPUT_BYTES=8000
+    ports:
+      - "8600:8600"
+    networks: [ nlp_net ]
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:8600/healthz"]
+      interval: 60s
+      timeout: 5s
+      retries: 2
+
+networks:
+  nlp_net:
+    driver: bridge
+
+volumes:
+  pg_data:

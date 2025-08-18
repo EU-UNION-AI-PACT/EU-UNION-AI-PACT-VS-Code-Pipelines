@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-server
+  labels:
+    app: mcp-server
+    component: eu-ai-pact
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mcp-server
+  template:
+    metadata:
+      labels:
+        app: mcp-server
+        component: eu-ai-pact
+    spec:
+      containers:
+        - name: mcp
+          image: ghcr.io/eu-union-ai-pact/mcp-server:latest
+          envFrom:
+            - configMapRef:
+                name: eu-ai-pact-config
+          env:
+            - name: MCP_PORT
+              value: "7000"
+            - name: NODE_ENV
+              value: "production"
+          ports:
+            - containerPort: 7000
+          readinessProbe:
+            httpGet:
+              path: /mcp/healthz
+              port: 7000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /mcp/healthz
+              port: 7000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-server
+  labels:
+    app: mcp-server
+    component: eu-ai-pact
+spec:
+  selector:
+    app: mcp-server
+  ports:
+    - port: 7000
+      targetPort: 7000
+      name: http

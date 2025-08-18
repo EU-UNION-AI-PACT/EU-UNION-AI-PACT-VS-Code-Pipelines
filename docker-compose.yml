@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  reverse-proxy:
+    image: nginx:1.27-alpine
+    depends_on:
+      - mcp
+      - wasmhost
+    volumes:
+      - ./infra/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./public:/usr/share/nginx/html:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN_ROOT=${DOMAIN_ROOT:-eu-ai-pact.local}
+      - DOMAIN_MCP=${DOMAIN_MCP:-mcp.eu-ai-pact.local}
+      - DOMAIN_WASM=${DOMAIN_WASM:-wasm.eu-ai-pact.local}
+    networks:
+      - aipack-net
+
+  mcp:
+    build:
+      context: ./services/mcp-server
+      dockerfile: Dockerfile
+    environment:
+      - MCP_PORT=${MCP_PORT:-7000}
+      - MCP_BASE_PATH=${MCP_BASE_PATH:-/mcp}
+      - NODE_ENV=production
+      - EU_AI_ACT_VERSION=${EU_AI_ACT_VERSION:-2024}
+    expose:
+      - "7000"
+    networks:
+      - aipack-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:7000/mcp/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  wasmhost:
+    build:
+      context: .
+      dockerfile: Dockerfile.wasmhost
+    environment:
+      - WASM_HOST_PORT=${WASM_HOST_PORT:-8080}
+      - COMPLIANCE_THRESHOLD=${COMPLIANCE_THRESHOLD:-80}
+    expose:
+      - "8080"
+    networks:
+      - aipack-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  aipack-net:
+    driver: bridge
+
+volumes:
+  wasm_cache: {}

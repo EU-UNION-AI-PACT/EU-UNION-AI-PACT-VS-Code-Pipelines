@@ -1,0 +1,2 @@
+# Jeden Tag 02:30 (UTC / Systemzeit)
+30 2 * * * /usr/bin/bash "/home/shinehealthcare/Schreibtisch/EU-UNION-AI-PACT-VS-Code Pipelines/scripts/update/update-all.sh" safe >> "/home/shinehealthcare/Schreibtisch/EU-UNION-AI-PACT-VS-Code Pipelines/reports/updates/cron.log" 2>&1

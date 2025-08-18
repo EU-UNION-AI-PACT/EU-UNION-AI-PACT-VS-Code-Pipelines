@@ -1,0 +1,19 @@
+version: 1
+rules:
+  - id: ensure_final_newline
+    applies: python
+    description: Adds trailing newline if missing
+  - id: remove_trailing_whitespace
+    applies: python
+    description: Removes trailing whitespace from lines
+  - id: normalize_imports
+    applies: python
+    description: Sorts and normalizes import statements
+  - id: snake_case_variables
+    applies: python
+    description: Enforces snake_case for variable names
+  - id: max_line_length
+    applies: python
+    description: Warns about lines exceeding 88 characters
+    config:
+      max_length: 88

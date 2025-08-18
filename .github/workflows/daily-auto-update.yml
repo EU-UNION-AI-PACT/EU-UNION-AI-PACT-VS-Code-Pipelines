@@ -1,0 +1,54 @@
+name: Daily Dependency Update
+on:
+  schedule:
+    - cron: "15 3 * * *"  # 03:15 UTC
+  workflow_dispatch:
+
+jobs:
+  update-deps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install tools
+        run: |
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          sudo apt-get update
+          sudo apt-get install -y jq
+      - name: Run update script (safe)
+        run: bash scripts/update/update-all.sh safe
+      - name: Summarize
+        run: |
+          LATEST_SUMMARY=$(ls -t reports/updates | grep update-summary | head -n1 || echo "")
+          if [ -n "$LATEST_SUMMARY" ]; then
+            python3 scripts/update/update-report-to-md.py "reports/updates/$LATEST_SUMMARY" > UPDATE_SUMMARY.md
+          else
+            echo "# No Update Summary Generated" > UPDATE_SUMMARY.md
+          fi
+      - name: Create PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BR="auto/update-$(date -u +%Y%m%d)"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git checkout -b "$BR"
+          git add reports/updates UPDATE_SUMMARY.md || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(auto-update): daily dependency refresh $(date -u +%Y-%m-%d)"
+          git push origin "$BR"
+          if command -v gh >/dev/null 2>&1; then
+            gh pr create --title "Daily Dependency Update $(date -u +%Y-%m-%d)" --body "Automated dependency update check. Review changes before merging." --label "auto-update" || echo "PR creation failed, manual intervention required"
+          else
+            echo "gh cli not available, PR must be created manually"
+          fi

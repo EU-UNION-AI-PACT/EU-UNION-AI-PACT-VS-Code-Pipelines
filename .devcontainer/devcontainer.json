@@ -1,0 +1,47 @@
+{
+  "name": "eu-union-ai-pact-dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" },
+    "ghcr.io/devcontainers/features/rust:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "ms-vscode.vscode-typescript-next",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "rust-analyzer.cargo.allFeatures": true,
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "remoteUser": "vscode",
+  "updateContentCommand": "echo 'DevContainer ready'",
+  "mounts": [
+    "source=wasm_cache,target=/home/vscode/.cache/wasmtime,type=volume"
+  ],
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "4gb"
+  },
+  "runArgs": [
+    "--cap-add=SYS_PTRACE",
+    "--security-opt",
+    "seccomp=unconfined"
+  ],
+  "containerEnv": {
+    "CARGO_TERM_COLOR": "always",
+    "WASMTIME_BACKTRACE_DETAILS": "1"
+  }
+}

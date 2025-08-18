@@ -1,0 +1,24 @@
+# Datenklassifizierung & Zugriffsstufen
+levels:
+  - name: public
+    retention_days: 0
+    export_allowed: true
+  - name: internal
+    retention_days: 365
+    export_allowed: false
+  - name: confidential
+    retention_days: 730
+    export_allowed: false
+  - name: secret
+    retention_days: 1095
+    export_allowed: false
+
+default: internal
+
+rules:
+  patterns:
+    confidential:
+      - "(?i)geheimprojekt"
+      - "(?i)vertraulich"
+    secret:
+      - "(?i)strategie2026"

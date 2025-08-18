@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eu-ai-pact-config
+  namespace: default
+data:
+  EU_AI_ACT_VERSION: "2024"
+  COMPLIANCE_THRESHOLD: "80"
+  RISK_ASSESSMENT_ENABLED: "true"
+  MCP_BASE_PATH: "/mcp"
+  WASM_BASE_PATH: "/validate"

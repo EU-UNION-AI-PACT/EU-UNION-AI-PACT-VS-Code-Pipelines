@@ -1,0 +1,17 @@
+version: 1
+rules:
+  - id: consistent_quotes
+    applies: javascript,typescript
+    description: Enforces consistent quote usage (single vs double)
+  - id: semicolon_insertion
+    applies: javascript,typescript
+    description: Adds missing semicolons
+  - id: camel_case_functions
+    applies: javascript,typescript
+    description: Enforces camelCase for function names
+  - id: const_for_immutable
+    applies: javascript,typescript
+    description: Suggests const for variables that are never reassigned
+  - id: arrow_function_consistency
+    applies: javascript,typescript
+    description: Normalizes arrow function syntax

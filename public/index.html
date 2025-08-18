@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>EU AI Pact - VS Code Pipeline Tools</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header { background: #1e40af; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .tool { border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; }
+    .tool h3 { margin-top: 0; color: #1e40af; }
+    button { background: #1e40af; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #1d4ed8; }
+    .result { margin-top: 10px; padding: 10px; background: #f3f4f6; border-radius: 4px; white-space: pre-wrap; }
+    .footer { margin-top: 40px; text-align: center; color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🇪🇺 EU AI Pact - VS Code Pipeline Tools</h1>
+    <p>AI Act Compliance Validation and Development Tools</p>
+  </div>
+
+  <div class="tools">
+    <div class="tool">
+      <h3>🔧 MCP Tools</h3>
+      <p>Model Context Protocol tools for AI development</p>
+      <button onclick="getMcpTools()">Get Available Tools</button>
+      <button onclick="validateCompliance()">AI Compliance Check</button>
+      <div id="mcp-result" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="tool">
+      <h3>⚡ WASM Validator</h3>
+      <p>WebAssembly-based AI system validation</p>
+      <button onclick="validateWithWasm()">Run WASM Validation</button>
+      <div id="wasm-result" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="tool">
+      <h3>📊 Risk Assessment</h3>
+      <p>EU AI Act risk category assessment</p>
+      <button onclick="riskAssessment()">Perform Risk Assessment</button>
+      <div id="risk-result" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="tool">
+      <h3>📋 Context Information</h3>
+      <p>Project and compliance framework info</p>
+      <button onclick="getContext()">Get Project Context</button>
+      <div id="context-result" class="result" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>EU AI Pact - VS Code Pipelines | Compliance Tools for AI Development</p>
+  </div>
+
+  <script>
+    const mcpBase = '/mcp';
+    const wasmBase = '/validate';
+
+    function showResult(elementId, data) {
+      const el = document.getElementById(elementId);
+      el.textContent = JSON.stringify(data, null, 2);
+      el.style.display = 'block';
+    }
+
+    async function getMcpTools() {
+      try {
+        const response = await fetch(`${mcpBase}/tools`);
+        const data = await response.json();
+        showResult('mcp-result', data);
+      } catch (error) {
+        showResult('mcp-result', { error: error.message });
+      }
+    }
+
+    async function validateCompliance() {
+      try {
+        const response = await fetch(`${mcpBase}/invoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tool: 'validate-ai-compliance',
+            args: {
+              system: 'AI Pipeline System',
+              riskLevel: 'medium',
+              applicationDomain: 'software-development'
+            }
+          })
+        });
+        const data = await response.json();
+        showResult('mcp-result', data);
+      } catch (error) {
+        showResult('mcp-result', { error: error.message });
+      }
+    }
+
+    async function validateWithWasm() {
+      try {
+        const testPayload = {
+          aiSystem: {
+            name: 'VS Code AI Pipeline',
+            type: 'development-assistant',
+            riskCategory: 'limited',
+            hasHumanOversight: true,
+            documentationLevel: 'comprehensive'
+          }
+        };
+
+        const response = await fetch(`${wasmBase}/validate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            validator: 'ai-validator',
+            payload: testPayload
+          })
+        });
+        const data = await response.json();
+        showResult('wasm-result', data);
+      } catch (error) {
+        showResult('wasm-result', { error: error.message });
+      }
+    }
+
+    async function riskAssessment() {
+      try {
+        const response = await fetch(`${mcpBase}/invoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tool: 'risk-assessment',
+            args: {
+              category: 'development-tools',
+              userBase: 'developers',
+              dataProcessing: 'code-analysis'
+            }
+          })
+        });
+        const data = await response.json();
+        showResult('risk-result', data);
+      } catch (error) {
+        showResult('risk-result', { error: error.message });
+      }
+    }
+
+    async function getContext() {
+      try {
+        const response = await fetch(`${mcpBase}/context`);
+        const data = await response.json();
+        showResult('context-result', data);
+      } catch (error) {
+        showResult('context-result', { error: error.message });
+      }
+    }
+  </script>
+</body>
+</html>

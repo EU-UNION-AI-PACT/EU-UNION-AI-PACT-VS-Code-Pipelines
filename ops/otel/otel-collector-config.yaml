@@ -1,0 +1,59 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+      grpc:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'self'
+          static_configs:
+            - targets: ['0.0.0.0:8888']
+        - job_name: 'app-metrics'
+          kubernetes_sd_configs:
+            - role: pod
+          relabel_configs:
+            - source_labels: [__meta_kubernetes_pod_label_app]
+              regex: (docproc|embedding|gateway|ip-guard)
+              action: keep
+
+exporters:
+  logging:
+    loglevel: warn
+  prometheus:
+    endpoint: "0.0.0.0:9464"
+  otlphttp:
+    endpoint: "https://otel-backend.example.com/v1/traces"
+    headers:
+      x-api-key: ${OTEL_API_KEY}
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    labels:
+      job: nlp-stack
+    tenant_id: default
+
+processors:
+  batch:
+  memory_limiter:
+    limit_mib: 512
+    spike_limit_mib: 128
+  resource:
+    attributes:
+      - key: service.namespace
+        value: "nlp-stack"
+        action: upsert
+
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus, otlp]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki, logging]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp]

@@ -1,0 +1,12 @@
+groups:
+  - name: rag_recording
+    interval: 30s
+    rules:
+      - record: service:request_duration_seconds:bucket_95
+        expr: histogram_quantile(0.95, sum by (le, service) (rate(http_request_duration_seconds_bucket[5m])))
+      - record: service:error_rate
+        expr: sum(rate(http_requests_total{code=~"5.."}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service)
+      - record: rag:vector_query_latency_ms:p95
+        expr: histogram_quantile(0.95, sum by (le) (rate(vector_query_duration_seconds_bucket[5m])))*1000
+      - record: ledger:append_fail_ratio
+        expr: sum(rate(ledger_append_fail_total[5m])) / sum(rate(ledger_append_total[5m]))

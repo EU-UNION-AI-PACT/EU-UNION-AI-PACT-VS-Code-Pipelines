@@ -1,0 +1,32 @@
+service: "rag-query"
+description: "Retrieval & Prompt Enhancement API Verfügbarkeit und Performance"
+indicators:
+  availability:
+    objective: 99.5
+    window: 30d
+    sli:
+      expr: 1 - (sum(rate(http_requests_total{code=~"5..",service="gateway"}[5m])) / sum(rate(http_requests_total{service="gateway"}[5m])))
+  latency_p95:
+    objective_ms: 700
+    window: 30d
+    sli:
+      expr: rag:vector_query_latency_ms:p95
+  ledger_integrity:
+    objective: 99.9
+    window: 30d
+    sli:
+      expr: 1 - ledger:append_fail_ratio
+error_budget_policy:
+  fast_burn_thresholds:
+    - burn_rate: 4
+      window: 1h
+      action: "Page On-Call, Incident Severity=SEV2"
+    - burn_rate: 2
+      window: 6h
+      action: "Escalate to SRE Lead"
+reviews:
+  cadence: monthly
+  stakeholders:
+    - product_owner
+    - sre_lead
+    - security_officer

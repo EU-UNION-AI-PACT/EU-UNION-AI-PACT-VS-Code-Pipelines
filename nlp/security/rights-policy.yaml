@@ -1,0 +1,19 @@
+# IP Rechte & Nutzungspolicy (informativ, nicht rechtswirksam)
+policy_version: 1
+license_default: "All Rights Reserved"
+permitted_uses:
+  - internal_research
+  - evaluation
+restricted_uses:
+  - external_distribution_without_approval
+  - model_finetuning_on_confidential_without_consent
+derivative_requirements:
+  - maintain_provenance_hash
+  - record_source_reference
+  - attach_license_notice
+recordkeeping:
+  ledger_format: jsonl
+  ledger_directory: storage/ledger
+signing:
+  method: hash-only
+  hash_algo: sha256
