@@ -1,0 +1,14 @@
+{
+  "timestamp": "20260119T041932Z",
+  "mode": "safe",
+  "sections": [
+    {
+      "name": "apt",
+      "body": "refreshed-index"
+    },
+    {
+      "name": "docker",
+      "body": "ghcr.io/dependabot/dependabot-updater-core:latest"
+    }
+  ]
+}
