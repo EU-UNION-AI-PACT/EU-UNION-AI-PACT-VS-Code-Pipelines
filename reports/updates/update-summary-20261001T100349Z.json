@@ -1,0 +1,14 @@
+{
+  "timestamp": "20261001T100349Z",
+  "mode": "safe",
+  "sections": [
+    {
+      "name": "apt",
+      "body": "refreshed-index"
+    },
+    {
+      "name": "docker",
+      "body": "ghcr.io/github/gh-aw-mcpg:latest\nghcr.io/github/gh-aw-firewall/agent:latest\nghcr.io/github/github-mcp-server:latest\nghcr.io/dependabot/dependabot-updater-core:latest\nghcr.io/github/gh-aw-firewall/api-proxy:latest\nghcr.io/github/gh-aw-firewall/squid:latest"
+    }
+  ]
+}
